@@ -59,10 +59,15 @@ Each Docker file will also install python / boto3 since our containers will need
 Here is our Dockerfile for our “Development” container:
 
 FROM ubuntu
+
 RUN apt-get update && apt-get install -y git python3-pip
+
 RUN git clone <repo1-url #1>
+
 WORKDIR /<repo1-dir #1>
+
 RUN pip3 install -r requirements.txt
+
 CMD ["python3", "app.py"]
 
 Here is our Dockerfile for our first “Production” container:
@@ -70,9 +75,13 @@ Here is our Dockerfile for our first “Production” container:
 FROM ubuntu
 
 RUN apt-get update && apt-get install -y git python3-pip
+
 RUN git clone <repo1-url #2>
+
 WORKDIR /<repo1-dir #2>
+
 RUN pip3 install -r requirements.txt
+
 CMD ["python3", "app.py"]
 
 Here is our Dockerfile for our second “Production” container:
@@ -80,9 +89,13 @@ Here is our Dockerfile for our second “Production” container:
 FROM ubuntu
 
 RUN apt-get update && apt-get install -y git python3-pip
+
 RUN git clone <repo1-url #3>
+
 WORKDIR /<repo1-dir #3>
+
 RUN pip3 install -r requirements.txt
+
 CMD ["python3", "app.py"]
 
 
@@ -90,9 +103,11 @@ Step 2: Building our Docker Images
 
 Once our Dockerfiles are defined, we need to build them into three separate images because of the three different GitHub repos that they will be pull files from
 
-docker build -t dockerdev -f ~/environment/dockerfiles/repo1/dockerdev .
-docker build -t dockerprod1 -f ~/environment/dockerfiles/repo2/dockerprod1 .
-docker build -t dockerprod2 -f ~/environment/dockerfiles/repo3/dockerprod2 .
+docker build -t dockerdev -f ~/environment/dockerfiles/repo1/dockerdev
+
+docker build -t dockerprod1 -f ~/environment/dockerfiles/repo2/dockerprod1
+
+docker build -t dockerprod2 -f ~/environment/dockerfiles/repo3/dockerprod2
 
 These commands need to be run with the full path specified. Once the Dockerfiles have been successfully built, we will receive confirmation in our console:
 
@@ -122,13 +137,17 @@ Bind mounts were deployed successfully
 Now that our containers are running, we use the following command to copy the contents of each repository into it’s corresponding container:
 
 docker cp ~/environment/dockerfiles/repo1 dev:/dev
+
 docker cp ~/environment/dockerfiles/repo2 prod1:/prod
+
 docker cp ~/environment/dockerfiles/repo3 prod2:/prod
 
 We can verify our results with the following commands
 
 docker exec dev ls /dev
+
 docker exec prod1 ls /prod
+
 docker exec prod2 ls /prod
 
 Our repos were succesfully copied to their respective containers
@@ -144,6 +163,7 @@ By adding only our development containers to this network.
 This will isolate this container from any network communication attempts from other containers in it’s environment.
 
 docker network create development
+
 docker network connect development dev
 
 docker network ls
@@ -155,6 +175,7 @@ Then, we use the following command to create the production network and add cont
 docker network create production
 
 docker network connect production prod1
+
 docker network connect production prod2
 
 docker network inspect production
@@ -175,6 +196,7 @@ Once the package is downloaded and installed, we use the following command to at
 We should receive a “Name or service not known” error because we have isolated our dev environment containers from our prod containers.
 
 ping PROD1
+
 ping PROD2
 
 We also need to ensure that both production containers can talk to each other. We repeat this process by shelling into one of our production containers, installing the same package, and running a ping command:
